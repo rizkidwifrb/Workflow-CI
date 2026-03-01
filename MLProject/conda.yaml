@@ -1,7 +1,13 @@
-name: smsml-training
+name: mlflow-env
 
-python_env: requirements.txt
+channels:
+  - defaults
 
-entry_points:
-  main:
-    command: "python modelling.py"
+dependencies:
+  - python=3.10
+  - pip
+  - pip:
+      - mlflow
+      - pandas
+      - scikit-learn
+      - numpy
