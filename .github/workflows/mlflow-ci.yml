@@ -10,31 +10,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
-      # ✅ INSTALL MINICONDA STABLE
-      - name: Setup Miniconda
-        uses: conda-incubator/setup-miniconda@v3
+      # ✅ Install Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
-          miniconda-version: "latest"
-          auto-activate-base: true
-          activate-environment: base
-          python-version: 3.10
-
-      # ✅ IMPORTANT → reload shell conda
-      - name: Init Conda
-        run: |
-          conda init bash
-          source ~/.bashrc
-          conda info
+          python-version: "3.10"
 
       # ✅ Install MLflow
-      - name: Install MLflow
+      - name: Install Dependencies
         run: |
           pip install mlflow
 
       # ✅ Run MLflow Project
-      - name: Run Training
+      - name: Run MLflow Project
         run: |
           mlflow run MLProject
