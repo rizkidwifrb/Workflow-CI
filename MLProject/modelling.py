@@ -14,7 +14,7 @@ mlflow.set_experiment("Student Performance CI")
 # =====================
 # LOAD DATA
 # =====================
-df = pd.read_csv("../student_performance_preprocessing/student_performance_processed.csv")
+df = pd.read_csv("student_performance_preprocessing/student_performance_processed.csv")
 
 print("Kolom dataset:")
 print(df.columns)
