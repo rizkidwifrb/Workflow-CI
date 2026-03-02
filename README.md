@@ -52,7 +52,6 @@ Workflow-CI
 └── MLProject
     ├── MLproject
     ├── modelling.py
-    ├── requirements.txt
     └── student_performance_processed.csv
 ```
 
