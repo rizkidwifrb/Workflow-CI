@@ -1,71 +1,84 @@
+# ===============================
+# Import Library
+# ===============================
 import pandas as pd
 import mlflow
 import mlflow.sklearn
-import os
 
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+import numpy as np
+
 
 # ===============================
-# SET MLFLOW TRACKING URI
+# Setup MLflow
 # ===============================
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
+mlflow.set_tracking_uri("sqlite:///mlflow.db")
+mlflow.set_experiment("Student Performance")
 
-# aktifkan autolog
-mlflow.sklearn.autolog()
-
-# ===============================
-# PATH DATA (FIX SESUAI FOLDER LU)
-# ===============================
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-data_path = os.path.join(
-    BASE_DIR,
-    "dataset_preprocessing",
-    "data_clean.csv"
-)
-
-print("Membaca data dari:", data_path)
 
 # ===============================
-# LOAD DATA
+# Load Dataset (HASIL PREPROCESSING)
 # ===============================
+data_path = "student_performance_preprocessing/student_performance_processed.csv"
+
 df = pd.read_csv(data_path)
 
-print("Dataset berhasil dibaca")
-print(df.head())
+print("Kolom dataset:")
+print(df.columns)
+
 
 # ===============================
-# FEATURE & TARGET
+# Split Feature & Target
 # ===============================
-target_column = df.columns[-1]
+X = df.drop("Performance Index", axis=1)
+y = df["Performance Index"]
 
-X = df.drop(target_column, axis=1)
-y = df[target_column]
-
-# ubah jadi klasifikasi
-y = (y > y.median()).astype(int)
 
 # ===============================
-# SPLIT DATA
+# Train Test Split
 # ===============================
 X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.2, random_state=42
+    X, y,
+    test_size=0.2,
+    random_state=42
 )
 
-# ===============================
-# TRAIN MODEL
-# ===============================
-model = LogisticRegression(max_iter=1000)
-model.fit(X_train, y_train)
 
 # ===============================
-# EVALUASI
+# Training Model + MLflow Logging
 # ===============================
-y_pred = model.predict(X_test)
+with mlflow.start_run():
 
-print("Accuracy :", accuracy_score(y_test, y_pred))
-print("Precision:", precision_score(y_test, y_pred))
-print("Recall   :", recall_score(y_test, y_pred))
-print("F1 Score :", f1_score(y_test, y_pred))
+    # Model
+    model = LinearRegression()
+
+    # Training
+    model.fit(X_train, y_train)
+
+    # Predict
+    y_pred = model.predict(X_test)
+
+    # Metrics
+    mse = mean_squared_error(y_test, y_pred)
+    rmse = np.sqrt(mse)
+    r2 = r2_score(y_test, y_pred)
+
+    # ===============================
+    # Logging ke MLflow
+    # ===============================
+    mlflow.log_param("model_type", "LinearRegression")
+
+    mlflow.log_metric("MSE", mse)
+    mlflow.log_metric("RMSE", rmse)
+    mlflow.log_metric("R2", r2)
+
+    # Save model
+    mlflow.sklearn.log_model(
+        model,
+        artifact_path="model"
+    )
+
+print("✅ Training selesai & model tersimpan di MLflow")

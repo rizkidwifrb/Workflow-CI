@@ -1,4 +1,4 @@
-name: Workflow-CI
+name: student-performance
 
 conda_env: conda.yaml
 

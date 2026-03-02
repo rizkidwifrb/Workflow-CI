@@ -1,9 +1,6 @@
-mlflow
 pandas
 numpy
 scikit-learn
+mlflow
 matplotlib
 seaborn
-joblib
-pyyaml
-virtualenv
