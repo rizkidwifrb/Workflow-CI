@@ -1,22 +1,32 @@
-name: MLflow CI
+name: MLflow CI Training
 
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   train:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v4
+      # ✅ INSTALL CONDA
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
         with:
-          python-version: "3.10"
+          auto-update-conda: true
+          python-version: 3.10
+          activate-environment: base
 
-      - name: Install MLflow
-        run: pip install mlflow
+      # ✅ INSTALL MLFLOW
+      - name: Install dependencies
+        run: |
+          pip install mlflow
 
-      - name: Run Training
-        run: mlflow run MLProject
+      # ✅ RUN MLFLOW PROJECT
+      - name: Run MLflow Project
+        run: |
+          mlflow run MLProject
