@@ -1,4 +1,4 @@
-name: StudentPerformanceProject
+name: student-performance-project
 
 conda_env: conda.yaml
 

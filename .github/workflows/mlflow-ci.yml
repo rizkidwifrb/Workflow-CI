@@ -1,30 +1,25 @@
-name: MLflow CI Training
+name: MLflow CI
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
   train:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Repo
         uses: actions/checkout@v3
 
-      # ✅ Install Python
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.10"
+          python-version: "3.12"
 
-      # ✅ Install MLflow
-      - name: Install Dependencies
-        run: |
-          pip install mlflow
+      - name: Install MLflow
+        run: pip install mlflow
 
-      # ✅ Run MLflow Project
       - name: Run MLflow Project
         run: |
-          mlflow run MLProject
+          mlflow run MLProject --env-manager=local
