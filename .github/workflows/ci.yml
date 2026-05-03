@@ -1,65 +1,31 @@
 name: MLOps CI
-
 on:
   push:
     branches: [main]
-  workflow_dispatch:
-
 jobs:
   mlops-pipeline:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Run actions/checkout@v3
-        uses: actions/checkout@v3
-
-      - name: Set up Python 3.12.7
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.12.7'
-
-      - name: Check Env
-        run: |
-          python --version
-          pip --version
-
-      - name: Install dependencies
-        run: pip install mlflow pandas scikit-learn
-
+      - run: pip install mlflow pandas scikit-learn
       - name: Run mlflow project
         working-directory: MLProject
-        run: mlflow run . --env-manager=local
-
-      - name: Get latest MLflow run_id
-        id: get_run
+        run: mlflow run. --env-manager=local
+      - name: Build Docker
         working-directory: MLProject
-        run: |
-          RUN_ID=$(ls -td mlruns/0/*/ | head -1 | cut -d'/' -f3)
-          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
-
-      - name: Install Python dependencies
-        run: pip install --upgrade mlflow
-
-      - name: Upload to Google Drive
-        uses: adityak74/google-drive-upload-github-action@master
-        with:
-          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
-          filename: "MLProject/mlruns"
-          folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
-          overwrite: "true"
-
-      - name: Build Docker Model
-        working-directory: MLProject
-        run: docker build -t model-temp:latest .
-
+        run: docker build -t rizkidwifrb/workflow-ci:latest.
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
+          username: rizkidwifrb
           password: ${{ secrets.DOCKER_PASSWORD }}
-          
-      - name: Tag Docker Image
-        run: docker tag model-temp:latest rizkidwifrb/workflow-ci:latest
-
-      - name: Push Docker Image
+      - name: Push Docker
         run: docker push rizkidwifrb/workflow-ci:latest
+      - name: Upload mlruns as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mlruns
+          path: MLProject/mlruns
