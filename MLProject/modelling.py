@@ -11,9 +11,8 @@ parser.add_argument("--data", type=str, default="student_performance_processed.c
 args = parser.parse_args()
 
 df = pd.read_csv(args.data)
-
-# TARGET SESUAI CSV LU
 target_col = "Performance Index"
+
 X = df.drop(columns=[target_col])
 y = df[target_col]
 
@@ -24,12 +23,12 @@ model.fit(X_train, y_train)
 pred = model.predict(X_test)
 mse = mean_squared_error(y_test, pred)
 
-# logging - run udah dibuat otomatis sama `mlflow run`
-mlflow.log_param("model", "RandomForest")
 mlflow.log_param("target", target_col)
 mlflow.log_metric("mse", mse)
 
+# log ke mlflow (optional)
 mlflow.sklearn.log_model(model, "model", input_example=X_test.iloc[:5])
+# save lokal buat Docker (WAJIB)
 mlflow.sklearn.save_model(model, "model")
 
-print(f"Done - target={target_col}, MSE={mse:.4f}")
+print(f"Done - MSE: {mse:.4f}")
