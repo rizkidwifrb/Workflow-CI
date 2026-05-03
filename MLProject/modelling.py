@@ -30,5 +30,6 @@ mlflow.log_param("target", target_col)
 mlflow.log_metric("mse", mse)
 
 mlflow.sklearn.log_model(model, "model", input_example=X_test.iloc[:5])
+mlflow.sklearn.save_model(model, "model")
 
 print(f"Done - target={target_col}, MSE={mse:.4f}")
