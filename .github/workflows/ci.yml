@@ -13,10 +13,10 @@ jobs:
       - run: pip install mlflow pandas scikit-learn
       - name: Run mlflow project
         working-directory: MLProject
-        run: mlflow run. --env-manager=local
+        run: mlflow run . --env-manager=local
       - name: Build Docker
         working-directory: MLProject
-        run: docker build -t rizkidwifrb/workflow-ci:latest.
+        run: docker build -t rizkidwifrb/workflow-ci:latest .
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
