@@ -1,0 +1,78 @@
+name: MLOps CI
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  mlops-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run actions/checkout@v3
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.12.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.7'
+
+      - name: Check Env
+        run: |
+          python --version
+          pip --version
+
+      - name: Install dependencies
+        run: pip install mlflow pandas scikit-learn
+
+      - name: Run mlflow project
+        working-directory: MLProject
+        run: mlflow run . --env-manager=local
+
+      - name: Get latest MLflow run_id
+        id: get_run
+        working-directory: MLProject
+        run: |
+          RUN_ID=$(ls -td mlruns/0/*/ | head -1 | cut -d'/' -f3)
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+
+      - name: Install Python dependencies
+        run: pip install --upgrade mlflow
+
+      - name: Upload to Google Drive
+        uses: adityak74/google-drive-upload-github-action@master
+        with:
+          credentials: {
+  "type": "service_account",
+  "project_id": "mlops-ci",
+  "private_key_id": "67d02808b8d82d629a085482e9cf64142bb67caa",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDHOGZo2DIs1bCx\n9Hy6EelvUF1rYXmKlg0EIJ4PDA6BG9TWP9QPTdRrzv/grVak5YcVgRy/qHYDXAVs\ncTMTUrW4jkcmyhMeeNdqt5i3c3AfeWaXesG2l4X4VimcaFbPqMIavwNWJAA3t+iS\n/iGrsNWeZ7HVnFyeDkkxuZ7A3rxbsdrEiNJlWJcUOTRCh8yBCHUs5AH4AeKuwNYS\nsGET1tSPVrX6hjE7wzoFZFswLAcc4S4oXOkV+YZICQHebpCMPS49d1q6TPVN+UfH\nNf8L+rcs8tNUED8uCPoSpEkQoPKOUM9fTxRjWs3GIhbiybK1afONdH1NmaTNTiNv\nfOjzJQyBAgMBAAECggEAHPHBEU0N9y0h460HnRoinhFhTUtndv7ni7i4diu0hMYY\nJXu3EfUnHnW///L3QnR1rKZqWJ8/bCwHvrJwrwdGjzaeuFBGOFhqxd7AYbD0MqJ3\nCR2k/OQlawgLuiV/rWKRtwSXFcIbxPyjng2tsy35T28163jxDOa69C5JljCWUcTy\nmeR4WZJ6iGNylDL6agDhduhzHwICGq3Nh3nE9DZazMcBXisz8+aSezHshkUJ2ejT\nz/ZHSWul9VWXKkGDQUiUYEBF6VQ2Fj452bnSRC0cVDCAfn1Etud6/SNDcQLJ46CG\nVORzm/dCjbYdVmscJOJN3w4l3PI9TvmXR7cPYMTQFQKBgQD9hBcYxInUj5Tf3L88\nbG9+Z6x+3VvOKHErSmbYZKFllVIrQqHsHOxauvWzqNI7d3k/SY8iazHwxdZUiI+I\nMza/YOdYyz1x+CnIr1M/Deiqop+f7YQyn4lnWre8w485yEhWJtI3bbPLfV/rENm4\nP6IWOOCJqvGbIGyEHhD798DVTQKBgQDJLB3cmv+KlDx4fOPozCOYRAT1lAxUpG0B\n5EK4YxYxHZRX7STTiCaBJJReir5Pw7AkdZxR0p6SregAc0lHQKoQA1I2fiulAsrL\nr4DwiOz0AXQxA8LzfNlqOalU1cAh+uLeO556ISny9A6SlxeuKIaV7qIVF50YWx4Y\nWYnmoMtqBQKBgCkfrzt2TkFr1SOHRIJBuMhRevrNX6IOj2UNWaeKk1/OHBkmYuvR\nOUnyf/7XyNqao9FvVkeoCd7byMvHpzjZzey3hG+z8FC3h9elESTuVaqwXKJtvf8U\nQA7C+YEmW+psocdP3tPc+MhumwufnSG1OM7QBSRv1WdrmA7KbcjhxKcVAoGAGlo+\nGyzutq+OcFYj4NYE/6hBYg4fw2K6qNnG57KLMKnoSdBV16PpL1ekW/Ie1gITa+NA\nM/O8NAi18IEpozzUSj61IVBL1VTVTfNSl6/IInqiRt1wR0cej+y3wtYxUgI0f9od\ne3Amt53C3u8N+hFy9+cHsm2idZNSEOyBxQVhQCUCgYADq3QQjXftRCsq+rOLjqBg\nAOo8sKLAIDKly0ZS2hHNdqoCr9uEFy874nikqSL+f1RH63ilKBKuGRuujJoDeauS\nmSkVzcJzbVtH5DerwwBiLI0jtrONGasBdnwrLr1EcK5DpCkufD56U27GFyzj3ZBj\nj7wtwj0c+ZBh+sK8OJ4PrQ==\n-----END PRIVATE KEY-----\n",
+  "client_email": "github-action@mlops-ci.iam.gserviceaccount.com",
+  "client_id": "105157055227069069387",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/github-action%40mlops-ci.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
+
+          filename: "MLProject/mlruns"
+          folderId: 1SSpbJNsSjeFErHPJBhpLmzmanEJCGVSs
+          overwrite: "true"
+
+      - name: Build Docker Model
+        working-directory: MLProject
+        run: docker build -t model-temp:latest .
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: rizkidwifrb
+          password: dckr_pat_JpB2KYmXvMzZ11oEA-0X29XWmbk
+
+      - name: Tag Docker Image
+        run: docker tag model-temp:latest rizkidwifrb/workflow-ci:latest
+
+      - name: Push Docker Image
+        run: docker push rizkidwifrb/workflow-ci:latest
