@@ -20,7 +20,7 @@ jobs:
 
       - name: Run MLflow Project
         working-directory: MLProject
-        run: mlflow run. --env-manager=local
+        run: mlflow run . --env-manager=local
 
       - name: Build Docker Model
         working-directory: MLProject
