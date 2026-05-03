@@ -9,42 +9,24 @@ jobs:
   train:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.9'
 
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install mlflow pandas scikit-learn
+      - name: Install deps
+        run: pip install mlflow pandas scikit-learn
 
       - name: Run MLflow Project
-        run: |
-          cd MLProject
-          mlflow run . --env-manager=local
-
-      - name: Get latest MLflow run
-        id: get_run
-        run: |
-          RUN_ID=$(find MLProject/mlruns/0 -type f -path "*/artifacts/model/MLmodel" | sort | tail -1 | cut -d'/' -f4)
-          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
-          echo "Found run: $RUN_ID"
-
-      - name: Upload mlruns artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mlruns
-          path: MLProject/mlruns/
+        working-directory: MLProject
+        run: mlflow run. --env-manager=local
 
       - name: Build Docker Model
-        run: |
-          mlflow models build-docker -m "MLProject/mlruns/0/${{ steps.get_run.outputs.run_id }}/artifacts/model" -n uwiberani/workflow-ci:latest
+        working-directory: MLProject
+        run: mlflow models build-docker -m model -n uwiberani/workflow-ci:latest
 
-      - name: Login to Docker Hub
+      - name: Login Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.uwiberani }}
