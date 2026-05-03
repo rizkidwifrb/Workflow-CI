@@ -30,8 +30,9 @@ jobs:
       - name: Get latest MLflow run
         id: get_run
         run: |
-          RUN_ID=$(ls -td MLProject/mlruns/0/*/ | head -1 | cut -d'/' -f4)
+          RUN_ID=$(find MLProject/mlruns/0 -type f -path "*/artifacts/model/MLmodel" | sort | tail -1 | cut -d'/' -f4)
           echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+          echo "Found run: $RUN_ID"
 
       - name: Upload mlruns artifact
         uses: actions/upload-artifact@v4
