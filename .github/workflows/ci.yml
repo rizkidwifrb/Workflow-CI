@@ -30,7 +30,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.uwiberani }}
-          password: ${{ secrets.ddckr_pat_v6rNRkVJhf5D4N186UdIM5JVhpw }}
+          password: ${{ secrets.rizkidwi123 }}
 
       - name: Push Docker Image
         run: docker push uwiberani/workflow-ci:latest
